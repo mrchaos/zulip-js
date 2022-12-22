@@ -40,17 +40,38 @@
     streambox.value=''
     cZulip.callOnEachMessage(messageHandler);
   }
-  
+
+  // 메시지 보내기
+  //{result: 'success', msg: '', rendered: '<p>meee</p>'}
+  function send_message() {
+    const msg = msgbox.value;
+    cZulip.messageRender(msg).then((rmsg)=>{
+      var v = msg;
+      if(!rmsg) {
+        v = msg;
+      }
+      else if (rmsg.result === "success") {
+        v = rmsg.rendered;    
+      }
+      rendered.innerHTML = v;
+    });
+    cZulip.sendMessage("단체1-공개","테스트토픽",msg)
+     .then((res)=>{
+       console.log(res);
+      });    
+  }  
 </script> 
 </head>
 <body>
   <p>Zulip Test</p>
-  <textarea id="streambox" type="text" readonly style="width:800px;height:500px;font-size:14px;"></textarea><br/>
-  <div id = "tagArea">
-  </div>  
+  <textarea id="streambox" type="text" readonly style="width:800px;height:400px;font-size:14px;"></textarea><br/>
   <input type="button" value="데이터 가져오기" onclick="get_stream_data();">  
   <input type="button" value="데이터 가져오기(Zulip)" onclick="get_stream_data_from_zulip();">  
   <input type="button" value="실시간대화" onclick="get_message_realtime();">  
   <input type="button" value="지우기" onclick="{streambox.value=''}">  
+  <div id = "rendered"></div>  
+  <textarea id="msgbox" type="text" style="width:800px;height:100px;font-size:14px;"></textarea><br/>
+  <input type="button" value="메시지 보내기" onclick="send_message();">  
+  <br>
 </body>
 </html>

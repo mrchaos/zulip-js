@@ -25,6 +25,24 @@ class CZulip {
     const z = await this.z;
     await z.callOnEachEvent(eventHandler, ['message']);
   }
+
+  // message rendering
+  async messageRender(msg) {
+    const z = await this.z;
+    return z.messages.render(msg);
+  }
+
+  // message send
+  async sendMessage(stream,subject,content) {
+    const z = await this.z;    
+    const res = await z.messages.send({
+      to: stream,
+      type: 'stream',
+      subject,
+      content,
+    });
+    console.log(res);
+  }
 }
 
 
@@ -32,22 +50,52 @@ class CZulip {
 // eslint-disable-next-line no-unused-vars
 function localTest() {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+  // eslint-disable-next-line no-unused-vars
   const cz = new CZulip("zulip@cherrycorp.io","YFeqVpDmkco4tXRtdnJezpObp3XZ9fJT","https://ai.e4net.net")
   
-  function handleEvent(event) {
-    console.log(event);
-  }
-  cz.callOnEachMessage(handleEvent);
-  // sleep(100).then((v)=>{console.log(v)});
+  // //------------------------
+  // // realtime message
+  // //------------------------
+  // function handleEvent(event) {
+  //   console.log(event);
+  // }
+  // cz.callOnEachMessage(handleEvent);
 
+  // //------------------------
+  // // get stream
+  // //------------------------
   // cz.getStreams().then((data) =>{
   //   console.log(data);
   // });
 
+  // //------------------------
+  // // get stream with zulip
+  // //------------------------
   // cz.getZulip().then((zulip) => {
   //   zulip.streams.subscriptions.retrieve().then((data) =>{
   //       console.log(data)});
   // });
+
+  // //------------------------
+  // // message render
+  // //------------------------
+  // const msg = "" +
+  //   "Inline: $$O(n^2)$$" +
+  //    "Displayed:" +
+  //   "``` math" +
+  //   "\\int_a^b f(t)\\, dt = F(b) - F(a)" +
+  //   "```" ;
+  // cz.messageRender(msg).then((m)=> {
+  //   console.log(m);
+  // });
+
+  //------------------------
+  // message render
+  //------------------------
+  // cz.sendMessage("단체1-공개","테스트토픽","**데스트 메시지 입니다**")
+  //   .then((res)=>{
+  //     console.log(res);
+  //   });
 
 }
 
