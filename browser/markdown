@@ -1,0 +1,5 @@
+|| yes | no | maybe
+|---|---|:---:|------:
+| A | left-aligned | centered | right-aligned
+| B |     extra      spaces      |  are |  ok
+| C | **bold** *italic* ~~strikethrough~~  :smile:  ||

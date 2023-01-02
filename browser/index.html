@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <title>Zulip Example</title>
+<!-- 파일업로드  -->
+<!-- https://7942yongdae.tistory.com/186 -->
 <script src="./dist/zulip.cherry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="text/javascript"> 
     let cZulip
     // window onload 시에 CZulip 객체 생성
@@ -71,7 +74,60 @@
   <input type="button" value="지우기" onclick="{streambox.value=''}">  
   <div id = "rendered"></div>  
   <textarea id="msgbox" type="text" style="width:800px;height:100px;font-size:14px;"></textarea><br/>
-  <input type="button" value="메시지 보내기" onclick="send_message();">  
-  <br>
+  <input type="button" value="메시지 보내기" onclick="send_message();">    
+  <br/>
+  <!-- 여기서 부터 파일 업로드 -->
+  <button id="btn-file-upload">파일 업로드</button>
+  <input
+    type="file"
+    id="upload-file"
+    style="display: none"
+    accept="image/*"
+  />
+  <script>
+    const inputFileUpload = document.querySelector("#upload-file");
+    const zulip_server = "https://ai.e4net.net";
+    const fileupload = (event) => {
+      const formData = new FormData();
+      formData.append("filename", event.target.files[0]);
+      <!-- "Access-Control-Allow-Origin": "*", -->
+      axios({
+        headers: {
+          "Content-Type": "multipart/form-data",
+          // 추후 이부분은 서버에서 값을 채워주는 걸로 
+          // "enVsaXBAY2hlcnJ5Y29ycC5pbzpZRmVxVnBEbWtjbzR0WFJ0ZG5KZXpwT2JwM1haOWZKVA==" = base64({email:apiKey})
+          "Authorization":"Basic enVsaXBAY2hlcnJ5Y29ycC5pbzpZRmVxVnBEbWtjbzR0WFJ0ZG5KZXpwT2JwM1haOWZKVA==",
+        },
+        url: zulip_server + "/api/v1/user_uploads", // 파일 업로드 요청 URL
+        method: "POST",
+        data: formData,
+      }).then((response) => {
+        inputFileUpload.value = "";  
+        // 화면에 결과 보여 주기
+        rendered.innerHTML = JSON.stringify(response,null,2);
+
+        try {
+          if (response["data"]["result"] =="success") {
+            f_uri = response["data"]["uri"];
+            file_name = f_uri.substr(f_uri.lastIndexOf('/') + 1);
+          // [hau2.png](/user_uploads/8/26/LuOw0cbnp7IBHcgOr9bB5-7I/hau2.png) 
+            msgbox.value += "["+file_name+"](" + zulip_server + "/" +f_uri + ")";
+          }
+        } catch(err) {
+          console.error(err);
+        }
+      });
+    };
+
+    inputFileUpload.addEventListener("change", fileupload);
+
+    document
+      .querySelector("#btn-file-upload")
+      .addEventListener("click", () => {
+        inputFileUpload.click();
+      });
+  </script>  
+  <!-- 여기서 부터 파일 업로드 끝-->
 </body>
 </html>
+<!-- https://showdownjs.com/docs/quickstart/ -->
