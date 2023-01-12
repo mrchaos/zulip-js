@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
 <title>Zulip Example</title>
+<META charset="UTF-8">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+  
 <!-- 파일업로드  -->
 <!-- https://7942yongdae.tistory.com/186 -->
 <script src="./dist/zulip.cherry.js"></script>
@@ -47,7 +50,10 @@
   // 메시지 보내기
   //{result: 'success', msg: '', rendered: '<p>meee</p>'}
   function send_message() {
+
     const msg = msgbox.value;
+    console.log(cZulip);
+    /*
     cZulip.messageRender(msg).then((rmsg)=>{
       var v = msg;
       if(!rmsg) {
@@ -58,17 +64,20 @@
       }
       rendered.innerHTML = v;
     });
+    */
     cZulip.sendMessage("단체1-공개","테스트토픽",msg)
      .then((res)=>{
        console.log(res);
-      });    
+       return;
+      });
+      return;
   }  
 </script> 
 </head>
 <body>
   <p>Zulip Test</p>
   <textarea id="streambox" type="text" readonly style="width:800px;height:400px;font-size:14px;"></textarea><br/>
-  <input type="button" value="데이터 가져오기" onclick="get_stream_data();">  
+  <input type="button" value="데이터 가져오기" onclick="get_stream_data()">  
   <input type="button" value="데이터 가져오기(Zulip)" onclick="get_stream_data_from_zulip();">  
   <input type="button" value="실시간대화" onclick="get_message_realtime();">  
   <input type="button" value="지우기" onclick="{streambox.value=''}">  

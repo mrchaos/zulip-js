@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const queues = require('./resources/queues');
 const events = require('./resources/events');
 
@@ -41,28 +42,70 @@ function eventsWrapper(config) {
   async function callOnEachEvent(callback, eventTypes = null) {
     let queueId = null;
     let lastEventId = -1;
+    let queueData = null;
     const handleEvent = (event) => {
       lastEventId = Math.max(lastEventId, event.id);
+      console.log(`!!! callOnEachEvent - lastEventId : ${  lastEventId}`);
       callback(event);
     };
     // eslint-disable-next-line no-constant-condition
     while (true) {
+      console.log(`!!! callOnEachEvent - queId:1 = ${queueId},${lastEventId}`);
       if (!queueId) {
-        const queueData = await registerQueue(eventTypes); // eslint-disable-line no-await-in-loop
+        console.log("!!! callOnEachEvent - queueId OK");
+        // const queueData = await registerQueue(eventTypes); // eslint-disable-line no-await-in-loop
+        queueData = await registerQueue(eventTypes); // eslint-disable-line no-await-in-loop
         queueId = queueData.queueId;
         lastEventId = queueData.lastEventId;
       }
+      else {
+        console.log("!!! callOnEachEvent - queueId No");
+        lastEventId = queueData.lastEventId;
+      }
+      // try {
+      //   console.log(`!!! callOnEachEvent - !!--01`);
+      //   // eslint-disable-next-line no-await-in-loop
+      //   z.events.retrieve({
+      //     queue_id: queueId,
+      //     last_event_id: lastEventId,
+      //     dont_block: true,
+      //   }).then((res)=>{
+      //     console.log(`!!! callOnEachEvent - !!--02`);
+      //     if (res.events) {
+      //       console.log("!!! callOnEachEvent - event callback call");
+      //       res.events.forEach(handleEvent);
+      //     } 
+      //     console.log(`!!! callOnEachEvent - !!--03`);
+      //   });
+      // } catch (e) {
+      //   console.log(`!!! callOnEachEvent - ERROR : ${  e}`);
+      //   logError(e);
+      // }        
+      // console.log(`!!! callOnEachEvent - !!--04 @@@`);
+      // await sleep(1000); // eslint-disable-line no-await-in-loop
+
       try {
+        console.log(`!!! callOnEachEvent - !!--01`);
         // eslint-disable-next-line no-await-in-loop
         const res = await z.events.retrieve({
           queue_id: queueId,
           last_event_id: lastEventId,
           dont_block: false,
         });
-        if (res.events) {
+        console.log(`!!! callOnEachEvent - !!--02`);
+        // if (res.events) {
+        //   console.log("!!! callOnEachEvent - event callback call");
+        //   console.log(`"!!! callOnEachEvent - !!--02:1 - if res : ${ res.events}"`);
+        console.log(`!!! callOnEachEvent - !!--02!!!!!!!!!!!!!!!!!!!!!!!`);  
+        console.log(`!!! callOnEachEvent - !!--02-${JSON.stringify(res)}`);
           res.events.forEach(handleEvent);
-        }
+        // } 
+        // else {
+        //   console.log(`"!!! callOnEachEvent - !!--02:2 - else res : ${ res.events}"`);
+        // }
+        console.log(`!!! callOnEachEvent - !!--03`);
       } catch (e) {
+        console.log(`!!! callOnEachEvent - ERROR : ${  e}`);
         logError(e);
       }
       await sleep(1000); // eslint-disable-line no-await-in-loop

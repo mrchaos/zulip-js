@@ -23,7 +23,7 @@ class CZulip {
   // eventHandler(event)
   async callOnEachMessage(eventHandler)  {
     const z = await this.z;
-    await z.callOnEachEvent(eventHandler, ['message']);
+    return z.callOnEachEvent(eventHandler, ['message']);
   }
 
   // message rendering
@@ -35,13 +35,24 @@ class CZulip {
   // message send
   async sendMessage(stream,subject,content) {
     const z = await this.z;    
-    const res = await z.messages.send({
+    return  z.messages.send({
       to: stream,
       type: 'stream',
       subject,
       content,
     });
-    console.log(res);
+
+    // return  = await z.messages.send({
+    //   to: stream,
+    //   type: 'stream',
+    //   subject,
+    //   content,
+    // });
+
+    // eslint-disable-next-line no-console
+    // console.log(res);
+
+    // return res;
   }
 }
 
