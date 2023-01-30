@@ -10,6 +10,7 @@
 <!-- https://7942yongdae.tistory.com/186 -->
 <script src="./dist/zulip.cherry.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link rel="stylesheet" href="./dist/css/markdown.css">
 <script type="text/javascript"> 
     let cZulip
     // window onload 시에 CZulip 객체 생성
@@ -33,6 +34,30 @@
        zulip.streams.subscriptions.retrieve().then((data) =>{
         const j = JSON.stringify(data,null,2)
         streambox.value = j;  
+      });
+    });
+  }
+  // Zulip 메시지만 가져오기
+  function get_messages_from_zulip() {
+    const readParams = {
+      anchor: "newest",
+      num_before: 100,
+      num_after: 0,
+    };
+
+    const z = cZulip.getZulip();
+    z.then((zulip) => {
+      zulip.messages.retrieve(readParams).then((data) =>{
+        txt = "";
+        if(data["result"] == "success") {        
+          data["messages"].forEach((item,index,arr)=>{
+            msg = item["content"];
+            user = item["sender_full_name"];
+            channel = item["display_recipient"];            
+            txt = txt + `[${channel}]:[${user}]:${msg}<br>\r\n`;
+          });
+        }
+        rendered.innerHTML = txt;  
       });
     });
   }
@@ -76,12 +101,15 @@
 </head>
 <body>
   <p>Zulip Test</p>
-  <textarea id="streambox" type="text" readonly style="width:800px;height:400px;font-size:14px;"></textarea><br/>
-  <input type="button" value="데이터 가져오기" onclick="get_stream_data()">  
+  <textarea id="streambox" type="text" readonly style="width:800px;height:200px;font-size:14px;"></textarea><br/>
+  <input type="button" value="스트림 가져오기" onclick="get_stream_data()">  
+  <input type="button" value="메시지 가져오기" onclick="get_messages_from_zulip()">  
   <input type="button" value="데이터 가져오기(Zulip)" onclick="get_stream_data_from_zulip();">  
   <input type="button" value="실시간대화" onclick="get_message_realtime();">  
   <input type="button" value="지우기" onclick="{streambox.value=''}">  
-  <div id = "rendered"></div>  
+  <div class="rendered_markdown">
+    <div id = "rendered"></div>  
+  </div>
   <textarea id="msgbox" type="text" style="width:800px;height:100px;font-size:14px;"></textarea><br/>
   <input type="button" value="메시지 보내기" onclick="send_message();">    
   <img id="aaa" src=https://ai.e4net.net/user_uploads/8/42/ZZ7O_ydUyjutzSR87Nh4hJGi/hau2.png>
@@ -163,7 +191,8 @@
       }   
       
       const imageId = 'aaa';
-      const imageUrl = 'https://ai.e4net.net/user_uploads/8/42/ZZ7O_ydUyjutzSR87Nh4hJGi/hau2.png';
+      imageUrl = imageId.value;
+      imageUrl = zulip_server + '/user_uploads/8/42/ZZ7O_ydUyjutzSR87Nh4hJGi/hau2.png';
       const authToken = 'enVsaXBAY2hlcnJ5Y29ycC5pbzpZRmVxVnBEbWtjbzR0WFJ0ZG5KZXpwT2JwM1haOWZKVA==';
       displayProtectedImage(imageId, imageUrl, authToken);      
   </script>  
