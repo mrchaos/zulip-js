@@ -86,21 +86,7 @@
   // 메시지 보내기
   //{result: 'success', msg: '', rendered: '<p>meee</p>'}
   function send_message() {
-
     const msg = msgbox.value;
-    //console.log(cZulip);
-    /*
-    cZulip.messageRender(msg).then((rmsg)=>{
-      var v = msg;
-      if(!rmsg) {
-        v = msg;
-      }
-      else if (rmsg.result === "success") {
-        v = rmsg.rendered;    
-      }
-      rendered.innerHTML = v;
-    });
-    */
     cZulip.sendMessage("단체1-공개","테스트토픽",msg)
      .then((res)=>{      
         //console.log(res);
@@ -116,6 +102,7 @@
                 const msg = data["message"]["content"];
                 const doc = new DOMParser().parseFromString(msg,'text/html');
                 rendered.appendChild(doc.body);
+                msgbox.value = "";
               }
             }); //get_raw_message
           }); //getZulip  
