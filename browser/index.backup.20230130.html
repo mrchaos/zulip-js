@@ -12,14 +12,69 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <link rel="stylesheet" href="./dist/css/markdown.css">
 <script type="text/javascript"> 
-    let cZulip    
-
+    let cZulip
     // window onload 시에 CZulip 객체 생성
     window.onload = function() {
       cZulip = new cw.CZulip("zulip@cherrycorp.io",
       "YFeqVpDmkco4tXRtdnJezpObp3XZ9fJT",
       "https://ai.e4net.net");
     }
+
+    const parser = new DOMParser();
+    // show protected images
+    function fetchWithAuthentication(url, authToken) {
+      const headers = new Headers();
+      headers.set('Authorization', `Basic ${authToken}`);
+      return fetch(url, { headers });
+    }
+
+    async function displayProtectedImage(
+      imageId, imageUrl, authToken
+    ) {
+      // Fetch the image.
+      const response = await fetchWithAuthentication(
+        imageUrl, authToken
+      );
+    
+      // Create an object URL from the data.
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      console.log(objectUrl);
+    
+      // Update the source of the image.
+      const imageElement = document.getElementById(imageId);
+      imageElement.src = objectUrl;
+    }   
+
+    async function displayProtectedImage2(
+      doc,i, authToken ) {
+      // Fetch the image.
+      const response = await fetchWithAuthentication(
+        doc.images[i].src, authToken
+      );
+    
+      // Create an object URL from the data.
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);      
+      console.log(objectUrl);
+      doc.images[i].src = objectUrl;
+    
+      return objectUrl;
+    }        
+
+    async function displayProtectedImage2(
+      img, authToken ) {
+      // Fetch the image.
+      const response = await fetchWithAuthentication(
+        img.src, authToken
+      );    
+      // Create an object URL from the data.
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);      
+      console.log(objectUrl);
+      img.src = objectUrl;    
+      return img;
+    } 
 
   function get_stream_data() {
     const stream = cZulip.getStreams();
@@ -57,8 +112,8 @@
             user = item["sender_full_name"];
             channel = item["display_recipient"];                        
             txt = txt + `[${channel}]:[${user}]:${msg}<br>\r\n`;            
-          });
-          const doc = new DOMParser().parseFromString(txt,'text/html');
+          });          
+          const doc = parser.parseFromString(txt,'text/html');
           const base = doc.createElement('base');
           // base url 바꾸기
           // 기본은 이 페이지를 불러오는 서버의 URL이 있는데 이를 zulip서버의 url로 바꿔 준다.
@@ -88,7 +143,7 @@
   function send_message() {
 
     const msg = msgbox.value;
-    //console.log(cZulip);
+    console.log(cZulip);
     /*
     cZulip.messageRender(msg).then((rmsg)=>{
       var v = msg;
@@ -102,24 +157,8 @@
     });
     */
     cZulip.sendMessage("단체1-공개","테스트토픽",msg)
-     .then((res)=>{      
-        //console.log(res);
-        if(res["result"]==="success") {
-          cZulip.getZulip().then((zulip) => {
-            const readParams = {
-              message_id :res["id"],
-              apply_markdown: true,
-            };            
-            zulip.messages.getById(readParams).then((data)=>{
-              //console.log(data);
-              if(data["result"]==="success") {
-                const msg = data["message"]["content"];
-                const doc = new DOMParser().parseFromString(msg,'text/html');
-                rendered.appendChild(doc.body);
-              }
-            }); //get_raw_message
-          }); //getZulip  
-        }
+     .then((res)=>{
+       console.log(res);
        return;
       });
       return;
@@ -138,7 +177,8 @@
     <div id = "rendered"></div>  
   </div>
   <textarea id="msgbox" type="text" style="width:800px;height:100px;font-size:14px;"></textarea><br/>
-  <input type="button" value="메시지 보내기" onclick="send_message();">      
+  <input type="button" value="메시지 보내기" onclick="send_message();">    
+  <img id="aaa" src=https://ai.e4net.net/user_uploads/8/42/ZZ7O_ydUyjutzSR87Nh4hJGi/hau2.png>
   <br/>
   <!-- 여기서 부터 파일 업로드 -->
   <button id="btn-file-upload">파일 업로드</button>
@@ -168,7 +208,7 @@
       }).then((response) => {
         inputFileUpload.value = "";  
         // 화면에 결과 보여 주기
-        //rendered.innerHTML = JSON.stringify(response,null,2);
+        rendered.innerHTML = JSON.stringify(response,null,2);
 
         try {
           if (response["data"]["result"] =="success") {
@@ -190,6 +230,13 @@
       .addEventListener("click", () => {
         inputFileUpload.click();
       });
+
+      const imageId = 'aaa';
+      imageUrl = imageId.value;
+      imageUrl = zulip_server + '/user_uploads/8/42/ZZ7O_ydUyjutzSR87Nh4hJGi/hau2.png';
+      const authToken = 'enVsaXBAY2hlcnJ5Y29ycC5pbzpZRmVxVnBEbWtjbzR0WFJ0ZG5KZXpwT2JwM1haOWZKVA==';
+      displayProtectedImage(imageId, imageUrl, authToken);    
+  
   </script>  
   <!-- 여기서 부터 파일 업로드 끝-->
 </body>
