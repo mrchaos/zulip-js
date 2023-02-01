@@ -199,12 +199,12 @@
         inputFileUpload.click();
       });
 
-      // message box "Ctrl+Enter" 입력시 메시지 전송
-      $('#msgbox').keydown(function (e) {
-        if (e.ctrlKey && e.keyCode == 13) {
-          send_message();
-        }
-      });
+    // message box "Ctrl+Enter" 입력시 메시지 전송
+    $('#msgbox').keydown(async function (e) {
+      if (e.ctrlKey && e.keyCode == 13) {
+        await send_message();
+      }
+    });
 
   </script>  
   <!-- 여기서 부터 파일 업로드 끝-->
